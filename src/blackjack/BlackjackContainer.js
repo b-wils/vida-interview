@@ -7,6 +7,9 @@ const MAX_CARD = 11;
 const CARD_IN_DECK_COUNT = 4;
 const STARTING_HAND_COUNT = 2;
 const TOTAL_PLAYERS = 2;
+const BLACKJACK = 21;
+const DEALER_HIT_MAX = 16;
+
 class BlackJackContainer extends PureComponent {
 
 	constructor(props) {
@@ -52,39 +55,96 @@ class BlackJackContainer extends PureComponent {
 			}
 		}
 		
-		// TODO check if we have a blackjack
+		let end = ''
 
+		for (let i = 0; i < players.length; i++) {
+			let handTotal = players[i].hand.reduce((total, cur)=> (total + cur), 0)
+
+			// TODO we can get hard 22 on deal in this implementation count as a win for now
+			if (handTotal >= BLACKJACK) {
+				end = `player ${i} blackjack`
+				break;
+			}
+		}
 
 		this.setState({
 			deck: deck,
 			players: players,
 			loaded: true,
-			currentPlayer: 0
+			currentPlayer: end ? 2 : 0,
+			end: end
 		})
 	}
 
+	// TODO we should abstract this better so dealer can use it
 	onPlayerHit() {
-		var curPlayer = this.state.players[this.state.currentPlayer]
-
-		var newDeck = [...this.state.deck];
-		var newHand = [...curPlayer.hand];
-		var newPlayers = [...this.state.players];
+		let curPlayer = this.state.players[this.state.currentPlayer]
+		let newDeck = [...this.state.deck];
+		let newHand = [...curPlayer.hand];
+		let newPlayers = [...this.state.players];
 
 		newHand.push(newDeck.pop())
 
 		newPlayers[this.state.currentPlayer] = {...curPlayer, hand:newHand}
 
-		console.log(newPlayers)
-
 		this.setState({
 			players: newPlayers,
 			deck: newDeck
-		})
+		}, () => {
+				let handTotal = newHand.reduce((total, cur)=> (total + cur), 0)
+
+				// Check for bust
+				if (handTotal > BLACKJACK) {
+					this.setState({
+						end: 'You Bust',
+						currentPlayer: TOTAL_PLAYERS
+					})
+				}
+			} 
+		)
 	}
 
 	onPlayerStay() {
+
 		this.setState({
 			currentPlayer: this.state.currentPlayer + 1
+		}, () => {
+			// Dealers turn
+			let curPlayer = this.state.players[this.state.currentPlayer]
+			let newDeck = [...this.state.deck];
+			let newHand = [...curPlayer.hand];
+			let newPlayers = [...this.state.players];
+
+			let dealerHandTotal = newHand.reduce((total, cur)=> (total + cur), 0)
+
+			// Deal cards to dealer while we are 16 or lower
+			while (dealerHandTotal <= DEALER_HIT_MAX) {
+				newHand.push(newDeck.pop())
+				dealerHandTotal = newHand.reduce((total, cur)=> (total + cur), 0)
+			}
+
+			newPlayers[this.state.currentPlayer] = {...curPlayer, hand:newHand}
+
+			let playerHandTotal = this.state.players[0].hand.reduce((total, cur)=> (total + cur), 0)
+
+			let end = ''
+
+			if (dealerHandTotal > BLACKJACK) {
+				end = 'dealer bust'
+			} else if (dealerHandTotal == playerHandTotal) {
+				end = 'draw'
+			} else if (dealerHandTotal >= playerHandTotal){
+				end = 'dealer win'
+			} else if (dealerHandTotal <= playerHandTotal){
+				// This shoudl be implied true
+				end = 'player win'
+			}
+
+			this.setState({
+				players: newPlayers,
+				deck: newDeck,
+				end: end
+			})
 		})
 	}
 
@@ -99,6 +159,7 @@ class BlackJackContainer extends PureComponent {
 								  onPlayerHit={this.onPlayerHit.bind(this)}
 								  onPlayerStay={this.onPlayerStay.bind(this)}
 								  onPlayerReset={this.setDefaultState.bind(this)}
+								  end={this.state.end}
 								  />
 			)
 		} else {
@@ -119,10 +180,10 @@ class BlackJackContainer extends PureComponent {
  * @param  {Array} array The array to shuffle
  * @return {String}      The first item in the shuffled array
  */
-var shuffle = function (array) {
+let shuffle = function (array) {
 
-	var currentIndex = array.length;
-	var temporaryValue, randomIndex;
+	let currentIndex = array.length;
+	let temporaryValue, randomIndex;
 
 	// While there remain elements to shuffle...
 	while (0 !== currentIndex) {

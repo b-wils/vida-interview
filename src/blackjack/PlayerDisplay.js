@@ -10,8 +10,6 @@ const Player = ({name, player}) => {
   			{name}
   		</PlayerName>
 
-
-
   		{player.hand.map((card, index) => (
   			<CardDisplay key={index} value={card} />
   		))}

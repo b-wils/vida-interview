@@ -5,7 +5,7 @@ import PlayerDisplay from './PlayerDisplay'
 import StatusDisplay from './StatusDisplay'
 import ActionsDisplay from './ActionsDisplay'
 
-const Blackjack = ({player1, dealer, currentPlayer, onPlayerHit, onPlayerStay, onPlayerReset}) => {
+const Blackjack = ({player1, dealer, currentPlayer, onPlayerHit, onPlayerStay, onPlayerReset, end}) => {
   return (
   	<BlackjackDiv>
   		<PlayerDisplay player={dealer} name='Dealer' />
@@ -16,7 +16,7 @@ const Blackjack = ({player1, dealer, currentPlayer, onPlayerHit, onPlayerStay, o
 				  onPlayerReset={onPlayerReset}
 				  currentPlayer={currentPlayer}
   		/>
-  		<StatusDisplay currentPlayer={currentPlayer}/>
+  		<StatusDisplay currentPlayer={currentPlayer} end={end}/>
   	</BlackjackDiv>
     );
 };

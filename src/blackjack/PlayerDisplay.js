@@ -10,12 +10,26 @@ const Player = ({name, player}) => {
   			{name}
   		</PlayerName>
 
-  		{player.hand.map((card) => (
-  			<CardDisplay value={card} />
+
+
+  		{player.hand.map((card, index) => (
+  			<CardDisplay key={index} value={card} />
   		))}
+
+  		<ScoreDisplay>
+	  		Current Score:
+	  		{player.hand.reduce((total, cur) => {
+	  			return total + cur;
+	  		}, 0)}
+		</ScoreDisplay>
+
   	</PlayerDiv>
     );
 };
+
+const ScoreDisplay = styled.div `
+	margin: 5px;
+`
 
 const PlayerName = styled.div `
 	margin: 5px;

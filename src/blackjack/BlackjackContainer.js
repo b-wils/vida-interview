@@ -39,6 +39,7 @@ class BlackJackContainer extends PureComponent {
 		// Initalize Players
 		for (let i =0; i < TOTAL_PLAYERS; i++) {
 			players.push({
+				// TODO we could add a player name here
 				hand: [],
 				dealer: (i === (TOTAL_PLAYERS - 1)) ? true : false
 			})
@@ -51,47 +52,61 @@ class BlackJackContainer extends PureComponent {
 			}
 		}
 		
-
+		// TODO check if we have a blackjack
 
 
 		this.setState({
 			deck: deck,
 			players: players,
-			loaded: true
+			loaded: true,
+			currentPlayer: 0
 		})
 	}
 
-	// dealCard() {
-	// 	let newDeck = [...deck];
+	onPlayerHit() {
+		var curPlayer = this.state.players[this.state.currentPlayer]
 
-	// 	let newCard = newDeck.pop();
+		var newDeck = [...this.state.deck];
+		var newHand = [...curPlayer.hand];
+		var newPlayers = [...this.state.players];
 
-	// 	this.setState({
-	// 		deck: newDeck;
-	// 	})
-	// }
+		newHand.push(newDeck.pop())
+
+		newPlayers[this.state.currentPlayer] = {...curPlayer, hand:newHand}
+
+		console.log(newPlayers)
+
+		this.setState({
+			players: newPlayers,
+			deck: newDeck
+		})
+	}
+
+	onPlayerStay() {
+		this.setState({
+			currentPlayer: this.state.currentPlayer + 1
+		})
+	}
 
 	render() {
 
-		console.log(this)
-		// return (
-
-		// 	{this.state.loaded ? 
-		// 		(<BlackjackDisplay />) :
-		// 		(<div>
-		// 			Loading...
-		// 		</div>)
-
-		// 	})
 
 		if (this.state.loaded) {
-		return (
-			<BlackjackDisplay player1={this.state.players[0]} dealer={this.state.players[TOTAL_PLAYERS - 1]}/>
+			return (
+				<BlackjackDisplay player1={this.state.players[0]} 
+								  dealer={this.state.players[TOTAL_PLAYERS - 1]} 
+								  currentPlayer={this.state.currentPlayer}
+								  onPlayerHit={this.onPlayerHit.bind(this)}
+								  onPlayerStay={this.onPlayerStay.bind(this)}
+								  onPlayerReset={this.setDefaultState.bind(this)}
+								  />
 			)
 		} else {
-			return (<div>
+			return (
+				<div>
 					Loading...
-		 		</div>)
+		 		</div>
+		 	)
 		}
 
 

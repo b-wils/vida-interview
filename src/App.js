@@ -1,10 +1,10 @@
 import React from 'react';
 
-import HomeContainer from './home/HomeContainer'
+import BlackjackContainer from './blackjack/BlackjackContainer'
 
 function App() {
   return (
-    <HomeContainer/>
+    <BlackjackContainer/>
   );
 }
 
